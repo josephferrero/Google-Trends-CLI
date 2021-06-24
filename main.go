@@ -61,7 +61,7 @@ func main() {
 
 }
 
-// go and pull the xml from the google trends website, which is in the XML format
+// go and pull the xml from the google trends website
 // and return the response
 func getGoogleTrends() *http.Response {
 	resp, err := http.Get("https://trends.google.com/trends/trendingsearches/daily/rss?geo=US")
