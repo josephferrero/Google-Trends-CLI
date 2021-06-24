@@ -30,7 +30,8 @@ type Item struct {
 
 //News struct
 type News struct {
-	Headline string `xml:"news_item_title"`
+	Headline     string `xml:"news_item_title"`
+	HeadlineLink string `xml:"news_item_url"`
 }
 
 func main() {
@@ -39,26 +40,39 @@ func main() {
 	data := readGoogleTrends(getGoogleTrends())
 	err := xml.Unmarshal([]byte(data), &r)
 
+	// handle a parsing error
 	if err != nil {
 		fmt.Println("error:", err)
 	}
 
-	fmt.Println(r.Channel.ItemList[0].Title)
-	fmt.Println(r.Channel.ItemList[0].Traffic)
-	fmt.Println(r.Channel.ItemList[0].NewsItems[0].Headline)
+	fmt.Println("\nHere are the Google search trends for today")
+	fmt.Println("-------------------------------------------")
+
+	// print out the results
+	for i := range r.Channel.ItemList {
+		rank := (i + 1)
+		fmt.Println("#", rank)
+		fmt.Println("Search Term:", r.Channel.ItemList[i].Title)
+		fmt.Println("Link to trend:", r.Channel.ItemList[i].Link)
+		fmt.Println("Headline:", r.Channel.ItemList[i].NewsItems[0].Headline)
+		fmt.Println("Link to article:", r.Channel.ItemList[i].NewsItems[0].HeadlineLink)
+		fmt.Println("--------------------------")
+	}
 
 }
 
+// go and pull the xml from the google trends website, which is in the XML format
+// and return the response
 func getGoogleTrends() *http.Response {
 	resp, err := http.Get("https://trends.google.com/trends/trendingsearches/daily/rss?geo=US")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
 	return resp
 }
 
+// read the http.response and convert it into a []byte
 func readGoogleTrends(*http.Response) []byte {
 	resp := getGoogleTrends()
 	data, err := ioutil.ReadAll(resp.Body)
@@ -66,6 +80,5 @@ func readGoogleTrends(*http.Response) []byte {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	//fmt.Println(string(data))
 	return data
 }
